@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Субъективная усталость и качество сна у студентов-медиков</title>
+<style>
+body{margin:0;background:#f5f7fb;color:#172033;font-family:Arial,sans-serif;line-height:1.5}
+.wrap{max-width:900px;margin:auto;padding:24px 15px 50px}
+.card{background:#fff;border:1px solid #dfe4ec;border-radius:18px;padding:24px;margin:16px 0}
+h1{font-size:28px;line-height:1.2}.muted{color:#687386}.q{font-weight:700;display:block;margin-bottom:10px}
+.options{display:grid;gap:9px}.opt{display:flex;gap:10px;border:1px solid #dfe4ec;border-radius:12px;padding:11px;cursor:pointer}
+.scale{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.scale label{text-align:center;border:1px solid #dfe4ec;border-radius:10px;padding:8px;cursor:pointer}
+.scale input{display:block;margin:auto}.btn{border:0;border-radius:12px;padding:13px 18px;background:#315efb;color:white;font-weight:700;font-size:16px;cursor:pointer}
+.req{color:#c43b3b}.result{border-left:4px solid #16794c;padding-left:15px}.metric{font-size:30px;font-weight:800}.hidden{display:none}
+@media(max-width:600px){h1{font-size:23px}.scale{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="card">
+<h1>Субъективная усталость и качество сна у студентов-медиков</h1>
+<p class="muted">Опросник предназначен для изучения особенностей сна и субъективной усталости студентов-медиков. Опрос проводится анонимно. Фамилию и имя указывать не нужно. Отвечайте исходя из своего состояния за последние 7 дней. Здесь нет правильных или неправильных ответов.</p>
+</header>
+
+<form id="survey">
+<section class="card"><h2>Часть 1. Общие сведения</h2>
+<div class="q"><span>1. Возраст:</span> <span class="req">*</span>
+<div class="options">
+<label class="opt"><input type="radio" name="q1" value="19" required>19</label>
+<label class="opt"><input type="radio" name="q1" value="20">20</label>
+<label class="opt"><input type="radio" name="q1" value="21">21</label>
+<label class="opt"><input type="radio" name="q1" value="22">22</label>
+<label class="opt"><input type="radio" name="q1" value="23">23</label>
+</div></div><br>
+
+<div class="q"><span>2. Пол:</span> <span class="req">*</span>
+<div class="options">
+<label class="opt"><input type="radio" name="q2" value="Мужской" required>Мужской</label>
+<label class="opt"><input type="radio" name="q2" value="Женский">Женский</label>
+</div></div><br>
+
+<div class="q"><span>3. Как вы оцениваете свою учебную нагрузку?</span> <span class="req">*</span>
+<div class="options">
+<label class="opt"><input type="radio" name="q3" value="Очень низкая" required>Очень низкая</label>
+<label class="opt"><input type="radio" name="q3" value="Низкая">Низкая</label>
+<label class="opt"><input type="radio" name="q3" value="Средняя">Средняя</label>
+<label class="opt"><input type="radio" name="q3" value="Высокая">Высокая</label>
+<label class="opt"><input type="radio" name="q3" value="Очень высокая">Очень высокая</label>
+</div></div>
+</section>
+
+<section class="card"><h2>Часть 2. Сон</h2><div id="sleep"></div></section>
+
+<section class="card"><h2>Часть 3. Субъективная усталость</h2>
+<p class="muted">Оцените степень своего согласия с каждым утверждением по шкале от 0 до 6:<br>
+0 — совсем не согласен; 1 — почти не согласен; 2 — скорее не согласен; 3 — затрудняюсь определить; 4 — скорее согласен; 5 — согласен; 6 — полностью согласен.</p>
+<div id="fatigue"></div></section>
+
+<section class="card">
+<div id="error" style="color:#b42318;font-weight:700"></div>
+<button class="btn" type="submit">Завершить опрос и получить результат</button>
+</section>
+</form>
+
+<section id="result" class="card hidden">
+<h2>Результат</h2>
+<div class="result">
+<p>Средняя субъективная усталость по вопросам 12–19:</p>
+<div class="metric"><span id="avg"></span> / 6</div>
+<p class="muted">Это описательный результат по ответам анкеты и не является медицинским диагнозом.</p>
+</div>
+</section>
+
+<footer class="muted">Спасибо за участие в исследовании. Ответы используются только в обобщённом виде для исследовательской работы.</footer>
+</div>
+
+<script>
+const sleep=[
+["4.","Сколько часов в среднем вы спите за ночь?",["Менее 5 часов","5–6 часов","6–7 часов","7–8 часов","Более 8 часов"]],
+["5.","Как часто за последнюю неделю вы ложились спать позже, чем планировали?",["Никогда","Редко","Иногда","Часто","Каждый день или почти каждый день"]],
+["6.","Как часто вам было трудно заснуть?",["Никогда","Редко","Иногда","Часто","Каждый день или почти каждый день"]],
+["7.","Как часто вы просыпались ночью и испытывали трудности с повторным засыпанием?",["Никогда","Редко","Иногда","Часто","Каждый день или почти каждый день"]],
+["8.","Как часто вы просыпались раньше запланированного времени и не могли нормально уснуть снова?",["Никогда","Редко","Иногда","Часто","Каждый день или почти каждый день"]],
+["9.","Как часто вы чувствовали себя неотдохнувшим утром после сна?",["Никогда","Редко","Иногда","Часто","Каждый день или почти каждый день"]],
+["10.","Как в целом вы оцениваете качество своего сна за последнюю неделю?",["Очень хорошее","Скорее хорошее","Среднее","Скорее плохое","Очень плохое"]],
+["11.","Как часто в течение дня вам хотелось спать?",["Никогда","Редко","Иногда","Часто","Каждый день или почти каждый день"]]
+];
+const fatigue=[
+"Я чувствую себя уставшим в течение большей части дня.",
+"Из-за усталости мне сложнее сосредоточиться на учебных заданиях.",
+"Из-за усталости мне сложнее запоминать учебный материал.",
+"К концу учебного дня я испытываю выраженное физическое или умственное истощение.",
+"Усталость снижает мою работоспособность во время занятий.",
+"Из-за усталости мне приходится делать больше перерывов во время учёбы.",
+"Усталость влияет на моё настроение.",
+"Даже после сна я иногда просыпаюсь уже уставшим."
+];
+
+function radioQuestion(num,text,opts){
+let n=num.replace('.','');
+return `<div class="q"><span>${num} ${text}</span> <span class="req">*</span><div class="options">`+
+opts.map((x,i)=>`<label class="opt"><input type="radio" name="q${n}" value="${x}" ${i===0?'required':''}>${x}</label>`).join('')+
+`</div></div><br>`;
+}
+document.getElementById('sleep').innerHTML=sleep.map(x=>radioQuestion(x[0],x[1],x[2])).join('');
+
+document.getElementById('fatigue').innerHTML=fatigue.map((text,i)=>{
+let n=i+12;
+return `<div class="q"><span>${n}. ${text}</span> <span class="req">*</span><div class="scale">`+
+Array.from({length:7},(_,v)=>`<label><input type="radio" name="q${n}" value="${v}" ${v===0?'required':''}>${v}</label>`).join('')+
+`</div></div><br>`;
+}).join('');
+
+document.getElementById('survey').addEventListener('submit',function(e){
+e.preventDefault();
+if(!this.checkValidity()){document.getElementById('error').textContent='Пожалуйста, ответьте на все вопросы.';this.reportValidity();return;}
+document.getElementById('error').textContent='';
+let vals=fatigue.map((_,i)=>Number(this.querySelector('input[name="q'+(i+12)+'"]:checked').value));
+let avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+document.getElementById('avg').textContent=avg.toFixed(2);
+document.getElementById('result').classList.remove('hidden');
+document.getElementById('result').scrollIntoView({behavior:'smooth'});
+});
+</script>
+</body>
+</html>
